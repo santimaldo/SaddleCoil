@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Simulacion(object):
+class Radiofrecuencia(object):
     '''
     Esta clase contiene la información de la simulación realizada en COMSOL.
     
@@ -27,10 +27,10 @@ class Simulacion(object):
         `archivo`, y los carga en el atributo `resultados`.
 
     '''
-    def __init__(self, archivo):
-        self.archivo = archivo # string
-        self.parametros = None # array_like
-        self.resultados = None # array:like
+    def __init__(self, RF):
+        self.B1 = archivo # array_like. resultados de la simulacion
+        self.B90 = None # 
+        self.tp = None # array:like
 	
     def set_parametros(self):
         #""" Método utilizado para extraer los parámetros de la simulación del 
@@ -44,17 +44,16 @@ class Simulacion(object):
         # se usa asi:
         # [X, Y, Z, Bx, By, Bz] = self.extraer_resultados()
         
-        resultados = np.loadtxt(self.archivo, comments='%', unpack=True)
+        resultados = np.loadtxt(archivo, comments='%', unpack=True)
         # elimino las filas que continenen NaN, para ello debo transponer.
+        # luego transpongo para volver a su tamano habitual
         resultados = resultados.transpose()
         resultados = resultados[~np.isnan(resultados).any(axis=1)]
-                             
+        resultados = resultados.transpose()
+                      
         
         print("resultados '"+self.archivo+"' extraidos con exito.")
 
-        #self.resultados = {'X': X, 'Y': Y, 'Z': Z,  'Bx': Bx, 'By': By, 'Bz': Bz}
-        self.resultados = resultados
-        # el return esta transpuesto para poder usarlo asi: 
-        # [X, Y, ...] = self.extraer_resultados()
+        self.resultados = {'X': X, 'Y': Y, 'Z': Z,  'Bx': Bx, 'By': By, 'Bz': Bz}
         return resultados.transpose()
         
