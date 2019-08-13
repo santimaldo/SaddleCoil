@@ -1,60 +1,32 @@
 import numpy as np
 
 
-class Simulacion(object):
-    '''
-    Esta clase contiene la información de la simulación realizada en COMSOL.
+def extraer_resultados(archivo):
+    # se usa asi:
+    # [X, Y, Z, Bx, By, Bz] = self.extraer_resultados()
     
-    Attributes
-    ----------
-    archivo : string
-        Direccion del archivo que contiene la salida de la simulacion.
+    resultados = np.loadtxt(archivo, comments='%', unpack=True)
+    # elimino las filas que continenen NaN, para ello debo transponer.
+    resultados = resultados.transpose()
+    resultados = resultados[~np.isnan(resultados).any(axis=1)]                        
     
-    parametros: array_like
-        arreglo de parametros usados para la simulacion. COMPLETAR DOCUMENTACION.
-    
-    resultados : array_like
-        resultados de la simulacion. COMPLETAR DOCUMENTACION.
-        
-    Methods
-    -------
-    set_parametros()
-        Método utilizado para extraer los parámetros de la simulación del
-        `archivo`, y los carga en el atributo `parametros`.    
-    
-    set_resultados()
-        Método utilizado para extraer los resultados de la simulación del 
-        `archivo`, y los carga en el atributo `resultados`.
+    #print("resultados '"+self.archivo+"' extraidos con exito.")
 
-    '''
-    def __init__(self, archivo):
-        self.archivo = archivo # string
-        self.parametros = None # array_like
-        self.resultados = None # array:like
-	
-    def set_parametros(self):
-        #""" Método utilizado para extraer los parámetros de la simulación del 
-        #`archivo`, y los carga en el atributo `parametros`. """
-        # returns 
-        pass
-    
-    def extraer_resultados(self):
-        #""" Método utilizado para extraer los resultados de la simulación del 
-        #`archivo`, y los carga en el atributo `parametros`. """
-        # se usa asi:
-        # [X, Y, Z, Bx, By, Bz] = self.extraer_resultados()
-        
-        resultados = np.loadtxt(self.archivo, comments='%', unpack=True)
-        # elimino las filas que continenen NaN, para ello debo transponer.
-        resultados = resultados.transpose()
-        resultados = resultados[~np.isnan(resultados).any(axis=1)]
-                             
-        
-        print("resultados '"+self.archivo+"' extraidos con exito.")
+    #self.resultados = {'X': X, 'Y': Y, 'Z': Z,  'Bx': Bx, 'By': By, 'Bz': Bz}
+    # el return esta transpuesto para poder usarlo asi: 
+    # [X, Y, ...] = self.extraer_resultados()
+    return resultados.transpose()
 
-        #self.resultados = {'X': X, 'Y': Y, 'Z': Z,  'Bx': Bx, 'By': By, 'Bz': Bz}
-        self.resultados = resultados
-        # el return esta transpuesto para poder usarlo asi: 
-        # [X, Y, ...] = self.extraer_resultados()
-        return resultados.transpose()
-        
+
+def nutacion(Bx,By):
+    H, xedges, yedges = np.histogram2d(Bx,By, bins=500)
+    
+    indices = np.where(H == H.max())
+    Bx90 = np.mean(xedges[indices[0][0]:indices[0][0]+2])
+    By90 = np.mean(yedges[indices[1][0]:indices[1][0]+2])
+    
+    tp = np.pi / 2 / abs(Bx90 + 1j * By90)
+    
+    return tp
+
+def Pulso90(M ,X, Y, Z, Bx, By, Bz, tp):
