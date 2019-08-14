@@ -42,6 +42,14 @@ def Pulso90(Bx, By, Bz, tp):
     
     M = np.dot(R,M0)
     return M
+
+def generar_matriz_R(Ux, Uy, Uz, tp):
+    O = np.zeros_like(Ux)
+    I = np.ones_like(Ux)
+    
+    
+    
+
     
 def Rot_y(vector,angulo):
     # definir matriz de rotacion
@@ -56,3 +64,41 @@ def Rot_y(vector,angulo):
     print('shape Ry: ', Ry.shape)
     #rint('Ry: ', Ry)
     return np.dot(Ry, vector)
+
+
+def Rot_y(vector,angulo):
+    # definir matriz de rotacion
+    c = np.cos(angulo)
+    print('shape cos(angulo): ', c.shape)
+    s = np.sin(angulo)
+    O = np.zeros_like(angulo)
+    I = np.ones_like(angulo)
+    Ry = np.array([[c, O, s], [O, I, O], [-s, O, c]])
+    
+    print('shape Ry: ', Ry.shape)
+    Ry = np.rollaxis(Ry,-1)
+    print('shape Ry: ', Ry.shape)
+    #rint('Ry: ', Ry)
+    return np.dot(Ry, vector)
+
+
+def Rot(kx, ky, kz, angulo):
+    #kx = direccion[:,0]
+    #ky = direccion[:,1]
+    #kz = direccion[:,2]
+    print('rotacion...')
+    print(kx, ky, kz)
+    zeros = np.zeros_like(kx)
+    ones = np.ones_like(kx)
+    
+    K = np.array([[zeros, -kz, ky], [kz, zeros, -kx], [-ky, kx, zeros]])
+    K = np.rollaxis(K, -1)
+    I = np.array([[ones, zeros, zeros], [zeros, ones, zeros], [zeros, zeros, ones]])
+    I = np.rollaxis(I, -1)
+    print('I:', I, I.shape)
+    
+    R = I + np.sin(angulo) * K + (1-np.cos(angulo)) * K**2
+    
+
+    M0 = np.array([0,0,1])
+    return np.dot(R, M0)
