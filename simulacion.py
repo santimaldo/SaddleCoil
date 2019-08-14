@@ -29,8 +29,20 @@ def nutacion(Bx,By):
 
     return tp
 
-# def Pulso90(M ,X, Y, Z, Bx, By, Bz, tp):
+def Pulso90(Bx, By, Bz, tp):
+    B1 = np.array([Bx, By, Bz])
+    B1 = np.linalg.norm(B1, axis=0)
+    
+    Ux = Bx/B1
+    Uy = By/B1
+    Uz = Bz/B1
 
+    R = generar_matriz_R(Ux, Uy, Uz, tp)
+    M0 = np.array([0,0,1])
+    
+    M = np.dot(R,M0)
+    return M
+    
 def Rot_y(vector,angulo):
     # definir matriz de rotacion
     c = np.cos(angulo)
