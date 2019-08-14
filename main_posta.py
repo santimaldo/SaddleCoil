@@ -14,22 +14,20 @@ path = 'S:/Doctorado/Dendritas/CellDesign/COMSOL/05/'
 print('leyendo...')
 archivo = 'datos_7mm.dat'
 archivo = path + 'datos_4mm.dat'
-#archivo = './datos_test.dat'
+archivo = './datos_test.dat'
+archivo = './datos.dat'
 resultados = np.loadtxt(archivo, comments='%', unpack=True)
 # elimino los Nan
 resultados = resultados.transpose()
 resultados = resultados[~np.isnan(resultados).any(axis=1)]
 resultados = resultados.transpose()
-[X, Y, Bx, By, Bz] = resultados
+[X, Y, Bx, By, Bz, B1] = resultados
 print('listo')
 
 
 # plt.figure(1)
 # plt.scatter(X, Y, c = Bz, cmap = 'RdBu')
 
-Bx = Bx*1e4
-By = By*1e4
-Bz = Bz*1e4
 # %%
 nbins = 500
 

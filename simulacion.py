@@ -20,13 +20,27 @@ def extraer_resultados(archivo):
 
 def nutacion(Bx,By):
     H, xedges, yedges = np.histogram2d(Bx,By, bins=500)
-    
+
     indices = np.where(H == H.max())
     Bx90 = np.mean(xedges[indices[0][0]:indices[0][0]+2])
     By90 = np.mean(yedges[indices[1][0]:indices[1][0]+2])
-    
+
     tp = np.pi / 2 / abs(Bx90 + 1j * By90)
-    
+
     return tp
 
-def Pulso90(M ,X, Y, Z, Bx, By, Bz, tp):
+# def Pulso90(M ,X, Y, Z, Bx, By, Bz, tp):
+
+def Rot_y(vector,angulo):
+    # definir matriz de rotacion
+    c = np.cos(angulo)
+    print('shape cos(angulo): ', c.shape)
+    s = np.sin(angulo)
+    O = np.zeros_like(angulo)
+    I = np.ones_like(angulo)
+    Ry = np.array([[c, O, s], [O, I, O], [-s, O, c]])
+    print('shape Ry: ', Ry.shape)
+    Ry = np.rollaxis(Ry,-1)
+    print('shape Ry: ', Ry.shape)
+    #rint('Ry: ', Ry)
+    return np.dot(Ry, vector)
