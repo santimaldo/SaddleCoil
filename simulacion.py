@@ -17,20 +17,19 @@ def extraer_resultados(archivo):
     # [X, Y, ...] = self.extraer_resultados()
     return resultados.transpose()
 
-def nutacion(Bx,By,Bz):
+def nutacion(Bx,By):
     nbins = 501
-    campo = np.array([Bx,By,Bz]).T
-    H, edges = np.histogramdd(campo, bins=nbins)
-    xedges, yedges, zedges = edges
+    #Bxy = np.array([Bx,By]).T
+    H, xedges, yedges = np.histogram2d(Bx, By, bins=nbins)
+    
 
-    print(xedges.shape, yedges.shape, zedges.shape)
+    print(xedges.shape, yedges.shape)
     indices = np.where(H == H.max())
     Bx90 = np.mean(xedges[indices[0][0]:indices[0][0]+2])
     By90 = np.mean(yedges[indices[1][0]:indices[1][0]+2])
-    Bz90 = np.mean(yedges[indices[2][0]:indices[2][0]+2])
 
-    B90 = np.array([Bx90, By90, Bz90])
-    B90[B90<np.max(B90)*1e-7] = 0
+    B90 = np.array([Bx90, By90])
+    #B90[B90<np.max(B90)*1e-7] = 0
     print(B90)
     B90 = np.linalg.norm(B90)
 
@@ -39,13 +38,13 @@ def nutacion(Bx,By,Bz):
     return tp
     #return tp, B90, Bx90, By90, Bz90
 
-def Pulso90(Bx, By, Bz, tp):
-    B1 = np.array([Bx, By, Bz])
+def Pulso90(Bx, By, tp):
+    B1 = np.array([Bx, By])
     B1 = np.linalg.norm(B1, axis=0)
 
     Ux = Bx/B1
     Uy = By/B1
-    Uz = Bz/B1
+    Uz = np.zeros_like(Ux)
 
     angulo = B1*tp
     print("angulo: ", angulo)
@@ -83,12 +82,16 @@ def Medir(M):
     Sx = np.sum(Mx)
     Sy = np.sum(My)
 
-    S = np.array([Mx, My])
-    S = np.linalg.norm(S)
+    Sxy = Sx + 1j * Sy
+    Mxy = np.array([Sx,Sy])
+    M = np.linalg.norm(Mxy)    
+    
+    S = np.abs(Sxy)
+    phase = np.angle(Sxy)
 
     Mz = np.sum(Mz)
 
-    return S, Mz
+    return S, phase, M
 #---------------------FUNCIONES DE PRUEBA
 def Rot_y(vector,angulo):
     # definir matriz de rotacion

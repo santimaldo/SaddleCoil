@@ -13,9 +13,9 @@ archivo = './datos.dat'
 
 [X, Y, Bx, By, Bz, B1] = sim.extraer_resultados(archivo)
 
-tp = sim.nutacion(Bx,By,Bz)
+tp = sim.nutacion(Bx,By)
 
-M = sim.Pulso90(Bx, By, Bz, tp)
+M = sim.Pulso90(Bx, By, tp)
 
 # S: amplitud de la FID. Mz, magnetizacion que no fue excitada.
 S, Mz = sim.Medir(M)
