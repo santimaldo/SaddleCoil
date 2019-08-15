@@ -77,8 +77,18 @@ def generar_matriz_R(Ux, Uy, Uz, angulo):
     R = np.moveaxis(R,2,0)
     return R
 
+def Medir(M):
+    Mx,My,Mz = M.transpose()
 
+    Sx = np.sum(Mx)
+    Sy = np.sum(My)
 
+    S = np.array([Mx, My])
+    S = np.linalg.norm(S)
+
+    Mz = np.sum(Mz)
+
+    return S, Mz
 #---------------------FUNCIONES DE PRUEBA
 def Rot_y(vector,angulo):
     # definir matriz de rotacion
