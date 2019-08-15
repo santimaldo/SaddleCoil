@@ -35,11 +35,9 @@ def nutacion(Bx,By,Bz):
     B90 = np.linalg.norm(B90)
 
     tp = np.pi / 2 / B90
-
     print(B90)
-
-    return tp, B90, Bx90, By90, Bz90
-
+    return tp
+    #return tp, B90, Bx90, By90, Bz90
 
 def Pulso90(Bx, By, Bz, tp):
     B1 = np.array([Bx, By, Bz])
