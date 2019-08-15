@@ -17,15 +17,20 @@ def extraer_resultados(archivo):
     # [X, Y, ...] = self.extraer_resultados()
     return resultados.transpose()
 
+def nutacion(Bx,By,Bz):
+    nbins = 501
+    campo = np.array([Bx,By,Bz]).T
+    H, edges = np.histogramdd(campo, bins=nbins)
+    xedges, yedges, zedges = edges
 
-def nutacion(Bx,By):
-    H, xedges, yedges = np.histogram2d(Bx,By, bins=2001)
-
+    print(xedges.shape, yedges.shape, zedges.shape)
     indices = np.where(H == H.max())
     Bx90 = np.mean(xedges[indices[0][0]:indices[0][0]+2])
     By90 = np.mean(yedges[indices[1][0]:indices[1][0]+2])
+    Bz90 = np.mean(yedges[indices[2][0]:indices[2][0]+2])
 
-    B90 = np.array([Bx90, By90])
+    B90 = np.array([Bx90, By90, Bz90])
+    B90[B90<np.max(B90)*1e-7] = 0
     print(B90)
     B90 = np.linalg.norm(B90)
 
@@ -33,7 +38,8 @@ def nutacion(Bx,By):
 
     print(B90)
 
-    return tp
+    return tp, B90, Bx90, By90, Bz90
+
 
 def Pulso90(Bx, By, Bz, tp):
     B1 = np.array([Bx, By, Bz])
@@ -125,3 +131,22 @@ def Rot(kx, ky, kz, angulo):
     M0 = np.array([0,0,1])
     M = np.dot(R, M0)
     return M, I, K, KxK, R
+
+
+
+def nutacion2D(Bx,By):
+    H, xedges, yedges = np.histogram2d(Bx,By, bins=2001)
+
+    indices = np.where(H == H.max())
+    Bx90 = np.mean(xedges[indices[0][0]:indices[0][0]+2])
+    By90 = np.mean(yedges[indices[1][0]:indices[1][0]+2])
+
+    B90 = np.array([Bx90, By90])
+    print(B90)
+    B90 = np.linalg.norm(B90)
+
+    tp = np.pi / 2 / B90
+
+    print(B90)
+
+    return tp

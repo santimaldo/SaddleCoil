@@ -10,5 +10,4 @@ import simulacion as sim
 archivo = './datos_test.dat'
 
 
-[X, Y, Z, Bx, By, Bz] = sim.extraer_resultados(archivo)
-
+[X, Y, Bx, By, Bz, B1] = sim.extraer_resultados(archivo)

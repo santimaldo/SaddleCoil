@@ -28,7 +28,8 @@ By = np.zeros(sitios)
 Bz = np.zeros(sitios)
 
 # hago una nutacion
-tp = nutacion(Bx,By)
+#tp = nutacion(Bx,By)
+tp, B90, Bx90, By90, Bz90 = nutacion(Bx, By, Bz)
 
 #aplico Pulso
 M = Pulso90(Bx, By, Bz, tp)
