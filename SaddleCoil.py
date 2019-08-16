@@ -44,19 +44,20 @@ class Simulacion:
 
     
     
-    def __init__(self, archivo=None, b1=None, magnetizacion=None, tp=None):
+    def __init__(self, archivo=None, b1=None, tp=None):
         
         self.b1 = b1
-        self.magnetizacion = magnetizacion
+        
         self.tp = tp
         self.archivo = archivo
         
         # el metodo crea objetos
-        if not any([b1, magnetizacion, tp]):
+        if not any([b1, tp]):
             self.extraer_resultados()
         else:
             print("Atencion! No se leyeron los resultados porque se forzo",
                   "el ingreso de 'b1', 'magnetizacion' o 'tp'. ")
+            self.magnetizacion = Magnetizacion(self.b1.Bx.shape)
 
     def extraer_resultados(self):
         """
@@ -94,3 +95,18 @@ class Simulacion:
         # el return se usa asi:
         # [X, Y, ...] = self.extraer_resultados()
         return resultados
+    
+    def Pulso(self):
+        """
+        Metodo que aplica un pulso de duracion tp.
+        La matriz de rotacion esta definida en Radiofrecuencia, y es nx3x3.
+        Se realiza un producto punto entre esta y M0 es un vector 3x1.
+        La salida es setear el valor de M en el atributo magnetizacion.
+        ademas se puede acceder mediante un return.
+        """
+        R = self.b1.generar_matriz_R(self.tp)
+        M0 = self.magnetizacion.M0    
+        
+        M = np.dot(R,M0)
+        self.magnetizacion.set_M(M)
+        return M

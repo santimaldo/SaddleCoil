@@ -11,4 +11,8 @@ class Magnetizacion:
     
     def __init__(self, dimensiones):
         
+        self.M0 = np.array([0,0,1])
         self.M = np.zeros(dimensiones)
+    
+    def set_M(self, M):
+        self.M = M
