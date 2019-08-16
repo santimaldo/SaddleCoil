@@ -96,7 +96,7 @@ class Simulacion:
         # [X, Y, ...] = self.extraer_resultados()
         return resultados
     
-    def Pulso(self):
+    def pulso(self):
         """
         Metodo que aplica un pulso de duracion tp.
         La matriz de rotacion esta definida en Radiofrecuencia, y es nx3x3.
@@ -110,3 +110,25 @@ class Simulacion:
         M = np.dot(R,M0)
         self.magnetizacion.set_M(M)
         return M
+    
+    def adquirir_senal(self):
+        """
+        Metodo que toma la magnetizacion.M y determina senal S, es decir, 
+        el modulo de M en el plano xy. Ademas determina la fase, que es el
+        angulo que tiene la magnetizacion total respecto al eje x.
+        Por otro lado, devuelve la magnetizacion residual en z.
+        """
+        # debo transponer para poder desempaquetar (unpack) el array.        
+        Mx,My,Mz = self.magnetizacion.M.transpose()
+
+        Sx = np.sum(Mx)
+        Sy = np.sum(My)
+
+        Sxy = Sx + 1j * Sy
+    
+        S = np.abs(Sxy)
+        fase = np.angle(Sxy)
+
+        Mz = np.sum(Mz)
+
+        return S, fase, Mz

@@ -13,6 +13,9 @@ class Magnetizacion:
         
         self.M0 = np.array([0,0,1])
         self.M = np.zeros(dimensiones)
+        # debo transponer para poder desempaquetar.
+        self.Mx, self.My, self.Mz = self.M.transpose()
     
     def set_M(self, M):
         self.M = M
+        self.Mx, self.My, self.Mz = self.M.transpose()
