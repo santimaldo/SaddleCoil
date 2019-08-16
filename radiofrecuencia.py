@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class Radiofrecuencia(object):
     '''
     Esta clase contiene la información de la simulación realizada en COMSOL.
@@ -27,10 +26,15 @@ class Radiofrecuencia(object):
         `archivo`, y los carga en el atributo `resultados`.
 
     '''
-    def __init__(self, RF):
-        self.B1 = archivo # array_like. resultados de la simulacion
+    def __init__(self, Bx, By, Bz):
+        
+        
+        self.Bx = Bx
+        self.By = By
+        self.Bz = Bz
+        self.B1 = None # array_like. resultados de la simulacion
         self.B90 = None # 
-        self.tp = None # array:like
+
 	
     def set_parametros(self):
         #""" Método utilizado para extraer los parámetros de la simulación del 
@@ -38,22 +42,22 @@ class Radiofrecuencia(object):
         # returns 
         pass
     
-    def extraer_resultados(self):
-        #""" Método utilizado para extraer los resultados de la simulación del 
-        #`archivo`, y los carga en el atributo `parametros`. """
-        # se usa asi:
-        # [X, Y, Z, Bx, By, Bz] = self.extraer_resultados()
-        
-        resultados = np.loadtxt(archivo, comments='%', unpack=True)
-        # elimino las filas que continenen NaN, para ello debo transponer.
-        # luego transpongo para volver a su tamano habitual
-        resultados = resultados.transpose()
-        resultados = resultados[~np.isnan(resultados).any(axis=1)]
-        resultados = resultados.transpose()
-                      
-        
-        print("resultados '"+self.archivo+"' extraidos con exito.")
-
-        self.resultados = {'X': X, 'Y': Y, 'Z': Z,  'Bx': Bx, 'By': By, 'Bz': Bz}
-        return resultados.transpose()
-        
+    def histograma(self):
+        """
+        Metodo que determina el Bxy con mayor cantidad de ocurrencias para ser
+        usado como estimacion del tp. La salida es B90, el modulo del campo en
+        xy con mayor cantidad de ocurrencias en el dominio.
+        """
+        # elijo 501 arbitrariamente. elijo impar porque vi que es mejor para
+        # agarrar el cero.
+        nbins = 501
+        H, xedges, yedges = np.histogram2d(self.Bx, self.By, bins=nbins)
+            
+        indices = np.where(H == H.max())
+        Bx90 = np.mean(xedges[indices[0][0]:indices[0][0]+2])
+        By90 = np.mean(yedges[indices[1][0]:indices[1][0]+2])
+    
+        B90 = np.array([Bx90, By90])        
+        B90 = np.linalg.norm(B90)
+        self.B90 = B90
+        return B90

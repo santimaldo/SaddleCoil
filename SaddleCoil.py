@@ -53,7 +53,44 @@ class Simulacion:
         
         # el metodo crea objetos
         if not any([b1, magnetizacion, tp]):
-            self.leer_archivo()
+            self.extraer_resultados()
+        else:
+            print("Atencion! No se leyeron los resultados porque se forzo",
+                  "el ingreso de 'b1', 'magnetizacion' o 'tp'. ")
+
+    def extraer_resultados(self):
+        """
+        Este metodo extrae los resultados del archivo y los guarda en los
+        atributos `b1` y ((( algo espacial para X Y ? ))). Ademas inicializa
+        el objeto magnetizacion con las dimensiones n x 3: 
+        n sitios, 3 componentes. Por otro lado, determina el tp utilizando el
+        metodo del histograma (el Bxy con mayor ocurrencias).
+        """
+        # se usa asi:
+        # [X, Y, Z, Bx, By, Bz] = self.extraer_resultados()
+        print('leyendo archivo de datos...')
+        resultados = np.loadtxt(self.archivo, comments='%', unpack=True)
+        # elimino las filas que continenen NaN, para ello debo transponer.
+        # luego, transpongo para regresar a su tamano original.
+        resultados = resultados.transpose()
+        resultados = resultados[~np.isnan(resultados).any(axis=1)]
+        resultados = resultados.transpose()
         
-    def leer_archivo(self):
-        print('leyendo archivo...')
+        [X, Y, Bx, By, Bz] = resultados
+        print("Resultados de '"+self.archivo+"' extraidos con exito.")
+        
+        # obtengo dim para pasarselos a M. lo transpongo para que sea nx3,
+        # donde n es la cantidad de sitios
+        dimensiones = np.array([Bx, By, Bz]).T.shape
+        
+        # creo los objetos campo y magnetizacion que son atributos de la clase
+        self.b1 = Radiofrecuencia(Bx, By, Bz)
+        self.magnetizacion = Magnetizacion(dimensiones)
+        
+        # estimo el tiempo de pulso
+        self.b1.histograma()
+        self.tp = np.pi/2 / self.b1.B90
+               
+        # el return se usa asi:
+        # [X, Y, ...] = self.extraer_resultados()
+        return resultados
