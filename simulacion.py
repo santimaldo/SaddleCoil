@@ -83,15 +83,13 @@ def Medir(M):
     Sy = np.sum(My)
 
     Sxy = Sx + 1j * Sy
-    Mxy = np.array([Sx,Sy])
-    M = np.linalg.norm(Mxy)    
     
     S = np.abs(Sxy)
-    phase = np.angle(Sxy)
+    #phase = np.angle(Sxy)
 
     Mz = np.sum(Mz)
 
-    return S, phase, M
+    return S, Mz
 #---------------------FUNCIONES DE PRUEBA
 def Rot_y(vector,angulo):
     # definir matriz de rotacion
@@ -161,3 +159,12 @@ def nutacion2D(Bx,By):
     print(B90)
 
     return tp
+
+def region90(Bx,By,tp):
+    # determina el slice en el cual deben evaluarse X, e Y correspondientes
+    # a regiones en la cual el pulso es de 90 grados.
+    Bxy = np.array([Bx, By])
+    Bxy = np.linalg.norm(Bxy, axis=0)
+    B90 = np.pi / 2 / tp
+    region90 = [np.abs((Bxy-B90)/B90) < 0.01 ]
+    return region90
