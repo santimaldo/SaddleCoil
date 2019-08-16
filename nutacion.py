@@ -8,10 +8,10 @@ import simulacion as sim
 import matplotlib.pyplot as plt
 import numpy as np
 
-archivo = './datos.dat'
+archivo = './datos_r15mm.dat'
 
 
-[X, Y, Bx, By, Bz, B1] = sim.extraer_resultados(archivo)
+[X, Y, Bx, By, Bz] = sim.extraer_resultados(archivo)
 
 # Bx = np.ones(5456)
 # By = np.zeros_like(Bx)
@@ -27,9 +27,9 @@ mz = []
 for tp in tp_nut:
     # S: amplitud de la FID. Mz, magnetizacion que no fue excitada.
     M = sim.Pulso90(Bx, By, tp)
-    S, fase, Mz = sim.Medir(M)
+    S, Mz = sim.Medir(M)
     signal.append(S)
-    phase.append(fase)
+    #phase.append(fase)
     mz.append(Mz)
     print('Amplitud de la FID: ', S)
     print('Magnetizacion no excitada: ', Mz)
@@ -45,14 +45,16 @@ signal = np.array(signal)
 t = tp_nut/tp90
 
 plt.figure(11)
-ax1 = plt.subplot(311)
+ax1 = plt.subplot(211)
 plt.plot(t, signal, 'o-')
 
-ax2 = plt.subplot(312, sharex=ax1, sharey=ax1)
-plt.plot(t, phase, 'o-')
+# ax2 = plt.subplot(312, sharex=ax1)
+# phase = (phase + np.ones_like(phase) ) * 180/np.pi
+# plt.plot(t, phase, 'o-')
 
-ax3 = plt.subplot(313, sharex=ax1, sharey=ax1)
+ax3 = plt.subplot(212, sharex=ax1, sharey=ax1)
 plt.plot(t, mz, 'o-')
+
 """
 Mx, My, Mz = M.transpose()
 

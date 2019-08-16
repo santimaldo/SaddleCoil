@@ -26,7 +26,7 @@ print('Bx90:\n', Bx[region])
 
 print('Amplitud de la FID: ', S)
 print('Magnetizacion no excitada: ', Mz)
-print('fracción excitada: ', S/Mz*100, ' %')
+print('fraccion excitada: ', S/Mz*100, ' %')
 
 print('-------------------')
 
