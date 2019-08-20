@@ -47,10 +47,12 @@ class Simulacion:
     
     def __init__(self, archivo=None, b1=None, tp=None):
         
-        self.b1 = b1
-        
+        self.b1 = b1        
         self.tp = tp
         self.archivo = archivo
+        
+        self.N_sitios = 1
+        self.fraccion_excitada = 0
         
         # el metodo crea objetos.
         # recibe los parametros de entrada. Si b1 y tp estan vacios, entonces
@@ -66,6 +68,7 @@ class Simulacion:
 
         elif not any([b1, tp]):
             self.extraer_resultados()
+            self.N_sitios = int(self.b1.Bx.shape[0])
         else:
             print("Atencion! No se leyeron los resultados porque se forzo",
                   "el ingreso de 'b1', 'magnetizacion' o 'tp'. ")
@@ -142,11 +145,13 @@ class Simulacion:
         #fase = np.angle(Sxy)
 
         Mz = np.sum(Mz)
+        
+        self.fraccion_excitada = S/self.N_sitios
 
         # return S, fase, Mz
         return S, Mz
     
-    def nutacion(self, tp_list = 'auto'):
+    def nutacion(self, tp_list = 'auto', imprimir=False):
         """
         metodo que simula una nutacion, es decir, varia el tiempo de pulso
         y adquiere la senal. 
@@ -163,18 +168,21 @@ class Simulacion:
         for tp in tp_list:
             # S: amplitud de la FID. Mz, magnetizacion que no fue excitada.
             self.tp = tp
-            print(tp, self.tp)
             self.pulso()
             #S, fase, Mz = self.adquirir_senal()
             S, Mz = self.adquirir_senal()
             signal.append(S)
             #phase.append(fase)
             mz.append(Mz)
-            print('Amplitud de la FID: ', S)
-            print('Magnetizacion no excitada: ', Mz)
-            print('fracción excitada: ', self.b1.Bx.shape/Mz*100, ' %')
             i += 1
-            print('-------------------')
+            if imprimir:
+                print('Amplitud de la FID: ', S)
+                print('Magnetizacion no excitada: ', Mz)
+                # si el pulso fuera perfecto la senal seria igual a la cantidad
+                # de sitios.
+                self.fraccion_excitada = S/self.N_sitios
+                print('fracción excitada: ', self.fraccion_excitada*100, ' %')
+                print('-------------------')
             
         signal = np.array(signal)
         #phase = np.array(phase)
