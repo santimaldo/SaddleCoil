@@ -6,6 +6,7 @@ Created on Fri Aug 16 18:11:20 2019
 """
 
 import numpy as np
+from scipy.interpolate import interp1d
 # mis modulos:
 from radiofrecuencia import Radiofrecuencia
 from magnetizacion import Magnetizacion
@@ -51,8 +52,19 @@ class Simulacion:
         self.tp = tp
         self.archivo = archivo
         
-        # el metodo crea objetos
-        if not any([b1, tp]):
+        # el metodo crea objetos.
+        # recibe los parametros de entrada. Si b1 y tp estan vacios, entonces
+        # extrae los resultados del archivo. Si no le das nigun archivo,
+        # crea el objeto magnetizacion con las dimensiones de b1 ingresados.
+        if not any([archivo, b1, tp]):
+            print("Error! ingresar argumentos al crear el objeto ",
+                "Simulacion.\n ej: \n\t",
+                "sim = Simulacion(archivo = '~/datos.dat') \n\n",
+                "o bien, crear objeto b1 de clase Radiofrecuencia: \n\n\t",
+                "sim = Simulacion(b1=b1, tp = 0.420)\n\n")
+            raise Exception('Error al crear el objeto simulacion!') 
+
+        elif not any([b1, tp]):
             self.extraer_resultados()
         else:
             print("Atencion! No se leyeron los resultados porque se forzo",
@@ -127,8 +139,64 @@ class Simulacion:
         Sxy = Sx + 1j * Sy
     
         S = np.abs(Sxy)
-        fase = np.angle(Sxy)
+        #fase = np.angle(Sxy)
 
         Mz = np.sum(Mz)
 
-        return S, fase, Mz
+        # return S, fase, Mz
+        return S, Mz
+    
+    def nutacion(self, tp_list = 'auto'):
+        """
+        metodo que simula una nutacion, es decir, varia el tiempo de pulso
+        y adquiere la senal. 
+        """
+        if tp_list=='auto':
+            tp_list = np.linspace(0, 4*self.tp, 41)
+        else:
+            tp_list = np.linspace(tp_list[0], tp_list[1], tp_list[2])
+            
+        i = 0
+        signal = []
+        #phase = []
+        mz = []
+        for tp in tp_list:
+            # S: amplitud de la FID. Mz, magnetizacion que no fue excitada.
+            self.tp = tp
+            print(tp, self.tp)
+            self.pulso()
+            #S, fase, Mz = self.adquirir_senal()
+            S, Mz = self.adquirir_senal()
+            signal.append(S)
+            #phase.append(fase)
+            mz.append(Mz)
+            print('Amplitud de la FID: ', S)
+            print('Magnetizacion no excitada: ', Mz)
+            print('fracción excitada: ', self.b1.Bx.shape/Mz*100, ' %')
+            i += 1
+            print('-------------------')
+            
+        signal = np.array(signal)
+        #phase = np.array(phase)
+        mz = np.array(mz)
+        
+        # interpolacion de la simulacion.
+        S_interpol = interp1d(tp_list, signal, kind='cubic')
+        
+        # S_interpol, la interpolacion de la nutacion, se usa como funcion.
+        tp = np.linspace(0, tp_list[-1], 1000)
+        S = S_interpol(tp)
+        
+        # Busco el maximo de la nutacion para determinar el pulso de 90.
+        max_index = np.argmax(S)
+        tp90 = tp[max_index]
+        
+        self.tp = tp90
+        return tp_list, signal, tp90, mz
+    
+    
+    def get_b1(self):        
+        return self.b1
+    
+    def get_tp(self):
+        return self.tp
