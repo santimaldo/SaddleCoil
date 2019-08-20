@@ -10,6 +10,7 @@ from scipy.interpolate import interp1d
 # mis modulos:
 from radiofrecuencia import Radiofrecuencia
 from magnetizacion import Magnetizacion
+from nutacion import Nutacion
 
 
 class Simulacion:
@@ -188,19 +189,12 @@ class Simulacion:
         #phase = np.array(phase)
         mz = np.array(mz)
         
-        # interpolacion de la simulacion.
-        S_interpol = interp1d(tp_list, signal, kind='cubic')
-        
-        # S_interpol, la interpolacion de la nutacion, se usa como funcion.
-        tp = np.linspace(0, tp_list[-1], 1000)
-        S = S_interpol(tp)
-        
-        # Busco el maximo de la nutacion para determinar el pulso de 90.
-        max_index = np.argmax(S)
-        tp90 = tp[max_index]
+        # Creo objeto nutacion: interpola y devuelve tp para pulso de 90
+        nutacion = Nutacion(tp_list, signal)
+        tp90 = nutacion.get_tp90()
         
         self.tp = tp90
-        return tp_list, signal, tp90, mz
+        return nutacion
     
     
     def get_b1(self):        
