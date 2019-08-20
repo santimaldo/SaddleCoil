@@ -17,14 +17,14 @@ sim = Simulacion(archivo=archivo)
 # aplico una nutacion para determinar el valor de tp. el mismo se guarda
 # en dicho atributo
 print('Aplicando nutacion...')
-sim.nutacion()
+sim.sim_nutacion()
 print('\t Listo! tp = ', sim.get_tp())
 
 # aplico un pulso de duracion tp
 print('Aplicando pulso...')
 sim.pulso()
 # adquiero la senal, y la magnetizacion residual en z
-S, Mz = sim.adquirir_senal()
+S = sim.adquirir_senal()
 print('\tListo!\n\t\t Amplitod de senal = ', S)
 print('\t\t fraccion excitada', sim.fraccion_excitada*100, ' %')
 

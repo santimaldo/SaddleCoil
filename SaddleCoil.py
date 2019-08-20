@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 from radiofrecuencia import Radiofrecuencia
 from magnetizacion import Magnetizacion
 from nutacion import Nutacion
+from senal import Senal
 
 
 class Simulacion:
@@ -54,7 +55,8 @@ class Simulacion:
         
         self.N_sitios = 1
         self.fraccion_excitada = 0
-        
+        self.nutacion = None
+        self.senal = 0
         # el metodo crea objetos.
         # recibe los parametros de entrada. Si b1 y tp estan vacios, entonces
         # extrae los resultados del archivo. Si no le das nigun archivo,
@@ -73,8 +75,9 @@ class Simulacion:
         else:
             print("Atencion! No se leyeron los resultados porque se forzo",
                   "el ingreso de 'b1', 'magnetizacion' o 'tp'. ")
-            self.magnetizacion = Magnetizacion(self.b1.Bx.shape)
-
+            self.magnetizacion = Magnetizacion(self.b1.Bx.shape)            
+        #----------------------------------------------------------------------
+        
     def extraer_resultados(self):
         """
         Este metodo extrae los resultados del archivo y los guarda en los
@@ -111,7 +114,8 @@ class Simulacion:
         # el return se usa asi:
         # [X, Y, ...] = self.extraer_resultados()
         return resultados
-    
+        #----------------------------------------------------------------------        
+        
     def pulso(self):
         """
         Metodo que aplica un pulso de duracion tp.
@@ -126,6 +130,7 @@ class Simulacion:
         M = np.dot(R,M0)
         self.magnetizacion.set_M(M)
         return M
+        #----------------------------------------------------------------------
     
     def adquirir_senal(self):
         """
@@ -135,24 +140,20 @@ class Simulacion:
         Por otro lado, devuelve la magnetizacion residual en z.
         """
         # debo transponer para poder desempaquetar (unpack) el array.        
-        Mx,My,Mz = self.magnetizacion.M.transpose()
-
-        Sx = np.sum(Mx)
-        Sy = np.sum(My)
-
-        Sxy = Sx + 1j * Sy
-    
-        S = np.abs(Sxy)
-        #fase = np.angle(Sxy)
-
-        Mz = np.sum(Mz)
+        # Mx,My,Mz = self.magnetizacion.M.transpose()
         
+        # creacion del objeto de clase Senal
+        senal = Senal(self.magnetizacion)
+        S = senal.get_total()
+        
+        self.senal = senal
         self.fraccion_excitada = S/self.N_sitios
 
         # return S, fase, Mz
-        return S, Mz
+        return S
+        #----------------------------------------------------------------------
     
-    def nutacion(self, tp_list = 'auto', imprimir=False):
+    def sim_nutacion(self, tp_list = 'auto', imprimir=False):
         """
         metodo que simula una nutacion, es decir, varia el tiempo de pulso
         y adquiere la senal. 
@@ -171,10 +172,10 @@ class Simulacion:
             self.tp = tp
             self.pulso()
             #S, fase, Mz = self.adquirir_senal()
-            S, Mz = self.adquirir_senal()
+            S = self.adquirir_senal()
             signal.append(S)
-            #phase.append(fase)
-            mz.append(Mz)
+            # phase.append(fase)
+            # mz.append(Mz)
             i += 1
             if imprimir:
                 print('Amplitud de la FID: ', S)
@@ -186,19 +187,22 @@ class Simulacion:
                 print('-------------------')
             
         signal = np.array(signal)
-        #phase = np.array(phase)
-        mz = np.array(mz)
+        # phase = np.array(phase)
+        # mz = np.array(mz)
         
         # Creo objeto nutacion: interpola y devuelve tp para pulso de 90
         nutacion = Nutacion(tp_list, signal)
         tp90 = nutacion.get_tp90()
         
         self.tp = tp90
+        self.nutacion = nutacion
         return nutacion
-    
-    
+        #----------------------------------------------------------------------
+        
     def get_b1(self):        
         return self.b1
+        #----------------------------------------------------------------------
     
     def get_tp(self):
         return self.tp
+        #----------------------------------------------------------------------
